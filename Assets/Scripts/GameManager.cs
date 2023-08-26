@@ -26,10 +26,7 @@ public class GameManager : MonoBehaviour
     }
 
     [SerializeField]
-    private RectTransform _userInputSelector;
-
-    [SerializeField]
-    private RectTransform _dataSelector;
+    private RectTransform _userInputSelector, _dataSelector;
 
     private RectTransform _currentSelector;
 
@@ -42,6 +39,11 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     private TextMeshProUGUI _dialogBoxTMP;
     PointerEventData m_PointerEventData;
+
+    public Transform TrashCan;
+
+    [HideInInspector]
+    public List<GameObject> CurrentDocuments;
 
     [SerializeField]
     private AudioSource _inspectSound, _analyzeSound, _discrepancySound;
