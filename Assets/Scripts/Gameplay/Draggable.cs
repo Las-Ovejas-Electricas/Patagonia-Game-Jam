@@ -64,6 +64,7 @@ public class Draggable : MonoBehaviour, IPointerDownHandler, IPointerEnterHandle
     public void OnPointerDown(PointerEventData eventData)
     {
         LeanTween.cancel(gameObject);
+        transform.SetAsLastSibling();
         pointerDown = true;
     }
 
