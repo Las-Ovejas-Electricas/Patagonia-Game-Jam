@@ -18,6 +18,8 @@ public enum DataType
     Model,
     Address,
     Signature,
+    Color,
+    PersonalID,
 }
 
 public class Selectable : MonoBehaviour

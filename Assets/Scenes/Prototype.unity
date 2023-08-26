@@ -3040,7 +3040,7 @@ MonoBehaviour:
   _dataSelector: {fileID: 1275757672}
   _raycaster: {fileID: 809625928}
   _dialogBoxTMP: {fileID: 510406779}
-  _trashCan: {fileID: 495149392}
+  TrashCan: {fileID: 495149393}
   CurrentDocuments: []
   _inspectSound: {fileID: 809625935}
   _analyzeSound: {fileID: 809625934}
