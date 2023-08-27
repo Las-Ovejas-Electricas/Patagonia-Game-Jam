@@ -99,14 +99,14 @@ public class GameManager : MonoBehaviour
             if (_dataItem.Value != _userInputItem.Value)
             {
                 _discrepancySound.Play();
-                _dialogBoxTMP.text = "Ai dispreponcias";
+                _dialogBoxTMP.text = "Se han encontrado discrepancias";
             }else
             {
-                _dialogBoxTMP.text = "Ta biem";
+                _dialogBoxTMP.text = "Datos coincidientes";
             }
         }else
         {
-            _dialogBoxTMP.text = "Los tipos de datos no comsiden";
+            _dialogBoxTMP.text = "Los tipos de datos no coinciden";
         }
         _dataItem = null;
         _userInputItem = null;
