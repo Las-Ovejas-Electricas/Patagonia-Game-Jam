@@ -5,9 +5,22 @@ using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using TMPro;
+using System;
+using System.Xml.Linq;
+using UnityEngine.Windows;
+using System.Linq;
+using static UnityEngine.InputSystem.UI.VirtualMouseInput;
 
 public class GameManager : MonoBehaviour
 {
+    private int _score;
+
+    [SerializeField]
+    private Texture2D _pointerCursor;
+
+    [SerializeField]
+    private GameObject _ending;
+
     public static GameManager instance;
 
     private PlayerInputActions _inputActions;
@@ -22,7 +35,6 @@ public class GameManager : MonoBehaviour
 
         _inputActions = new PlayerInputActions();
         _inputActions.Player.Click.performed += ShootRaycast;
-
     }
 
     [SerializeField]
@@ -40,10 +52,9 @@ public class GameManager : MonoBehaviour
     private TextMeshProUGUI _dialogBoxTMP;
     PointerEventData m_PointerEventData;
 
-    public Transform TrashCan;
+    public Transform _trashCan;
 
-    [HideInInspector]
-    public List<GameObject> CurrentDocuments;
+    private List<GameObject> _currentDocuments = new();
 
     [SerializeField]
     private AudioSource _inspectSound, _analyzeSound, _discrepancySound;
@@ -89,6 +100,11 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public void SetPointerCursor(bool pointer)
+    {
+        Cursor.SetCursor(pointer ? _pointerCursor : null, Vector2.zero, UnityEngine.CursorMode.Auto);
+    }
+
     private IEnumerator CompareInformation()
     {
         _analyzeSound.Play();
@@ -96,13 +112,16 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSeconds(_analyzeSound.clip.length);
         if (_dataItem.DataType == _userInputItem.DataType)
         {
-            if (_dataItem.Value != _userInputItem.Value)
+            if(_dataItem.DataType == DataType.Coverage)
             {
-                _discrepancySound.Play();
-                _dialogBoxTMP.text = "Se han encontrado discrepancias";
-            }else
+                string[] coverage = _dataItem.Value.Split(new[] { ", " }, StringSplitOptions.None);
+                if (coverage.Contains(_userInputItem.Value)) OkData();
+                else DiscrepanciesFound();
+            }
+            else
             {
-                _dialogBoxTMP.text = "Datos coincidientes";
+                if (_dataItem.Value != _userInputItem.Value)DiscrepanciesFound();
+                else OkData();
             }
         }else
         {
@@ -114,6 +133,90 @@ public class GameManager : MonoBehaviour
         _userInputSelector.gameObject.SetActive(false);
         _inputActions.Player.Enable();
     }
+
+    private void DiscrepanciesFound()
+    {
+        _discrepancySound.Play();
+        _dialogBoxTMP.text = "Se han encontrado discrepancias";
+        StartCoroutine(DestroyDocuments());
+    }
+
+    private void OkData()
+    {
+        _dialogBoxTMP.text = "Datos coincidientes";
+    }
+
+    #region Client Sequence
+    [Serializable]
+    public class Client
+    {
+        public GameObject[] Documentation;
+        public PolicySO Policy;
+    }
+
+    [Space][Header("Client Sequence")]
+    [SerializeField]
+    private List<Client> _clients;
+
+    [SerializeField]
+    private InsuranceFile _policy;
+    [SerializeField]
+    private Webcam _webcam;
+
+    [SerializeField]
+    private Transform _spawnPosition, _targetPosition;
+    public void StartClientSequence()
+    {
+        if(_clients.Count == 0)
+        {
+            _ending.SetActive(true);
+            return;
+        }
+        StartCoroutine(SpawnDocuments(_clients[0]));
+    }
+
+    private IEnumerator SpawnDocuments(Client client)
+    {
+        _policy.PolicySO = client.Policy;
+        _webcam.PolicySO = client.Policy;
+        foreach (GameObject document in client.Documentation)
+        {
+            GameObject doc = Instantiate(document, _spawnPosition.position, Quaternion.identity, transform);
+            _currentDocuments.Add(doc);
+            LeanTween.move(doc, _targetPosition.position, 0.25f).setEaseOutCubic();
+            yield return new WaitForSeconds(0.2f);
+        }
+        _policy.SetWindowState(true);
+        _webcam.SetWindowState(true);
+        _clients.RemoveAt(0);
+    }
+
+    private IEnumerator DestroyDocuments()
+    {
+        _inputActions.Player.Disable();
+        yield return new WaitForSeconds(1.5f);
+        _userInputSelector.SetParent(null);
+        _dataSelector.SetParent(null);
+        foreach (GameObject document in _currentDocuments)
+        {
+            if(document.TryGetComponent(out Draggable draggable)){
+                draggable.enabled = false;
+            }
+            LeanTween.move(document, _trashCan.position, 0.5f).setEaseOutCubic();
+            LeanTween.scale(document, Vector3.zero, 0.5f).setEaseOutCubic().setOnComplete(() =>
+            {
+                Destroy(document);
+            });
+            yield return new WaitForSeconds(0.1f);
+        }
+        _policy.SetWindowState(false);
+        _webcam.SetWindowState(false);
+        _currentDocuments.Clear();
+        _inputActions.Player.Enable();
+        _dialogBoxTMP.text = "";
+        Invoke(nameof(StartClientSequence), 1f);
+    }
+    #endregion
 
     private void OnEnable()
     {

@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 248d908cd6af8064fa9d86e6ef4da366, type: 3}
+  m_Name: Raul Seis
+  m_EditorClassIdentifier: 
+  clientName: Raul Seis
+  personalID: 36785210
+  address: Calle Primavera 665
+  expirationDate: 31/10/2026
+  licensePlate: XBX704
+  model: QuantumRider Z
+  color: Amarillo
+  coverage:
+  - Incendio
+  - Choque
+  photo: {fileID: 21300000, guid: 575d9f8980e739e4d902dfcbcdf1fdf5, type: 3}

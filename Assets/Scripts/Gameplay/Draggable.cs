@@ -3,9 +3,9 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
-public class Draggable : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler, IPointerExitHandler, IPointerUpHandler
+public class Draggable : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
-    public float speed = 1.0f;
+    private float speed = 20f;
 
     private bool onTable = false;
     private bool dragging = false;
@@ -13,13 +13,8 @@ public class Draggable : MonoBehaviour, IPointerDownHandler, IPointerEnterHandle
     private Vector2 previousMousePosition;
     private Vector2 mousePosition;
 
-    private Vector2 previousPosition;
-    private bool isMoving;
-
     private void Update()
     {
-        isMoving = previousPosition != (Vector2)transform.position;
-        previousPosition = transform.position;
         mousePosition = Mouse.current.position.ReadValue();
 
         if (dragging) OnDrag();
@@ -63,7 +58,8 @@ public class Draggable : MonoBehaviour, IPointerDownHandler, IPointerEnterHandle
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        LeanTween.cancel(gameObject);
+        //LeanTween.cancel(gameObject);
+        if (LeanTween.isTweening(gameObject)) return;
         transform.SetAsLastSibling();
         transform.parent.SetAsLastSibling();
         pointerDown = true;
@@ -74,23 +70,4 @@ public class Draggable : MonoBehaviour, IPointerDownHandler, IPointerEnterHandle
         if (cancelTweens) LeanTween.cancel(gameObject);
         LeanTween.scale(gameObject, Vector3.one * size, time).setEaseOutCubic();
     }
-
-    public void OnPointerEnter(PointerEventData eventData)
-    {
-        //HoverCard(1.05f);
-    }
-
-    public void OnPointerExit(PointerEventData eventData)
-    {
-        //HoverCard(1f);
-    }
-
-    //private void HoverCard(float size)
-    //{
-    //    if (!onTable && !dragging)
-    //    {
-    //        if (!isMoving) LeanTween.cancel(gameObject);
-    //        ScaleCard(size);
-    //    }
-    //}
 }
